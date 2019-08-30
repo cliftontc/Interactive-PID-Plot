@@ -1,11 +1,6 @@
-//var integralErr = 0;
-//var pidParams = [30, 20, 5];
-
 var GetPoints = function() {
-  // private counter
-  var counter = 0;
   // initialize setpoint array
-  var setpointArr = new Array(500);
+  const setpointArr = new Array(500);
   for (var i = 0; i < 100; i++) {
     setpointArr[i] = 0;
     setpointArr[i + 100] = 0.4;
@@ -17,12 +12,13 @@ var GetPoints = function() {
     setpointArr[i + 150] = 0;
     setpointArr[i + 350] = 0.65;
   }
+
+  // initialize Process variable array
   const pvArr = [];
 
   for (var i = 0; i < 100; i++) {
     pvArr.push(0);
   }
-  //PID old args processVar, prevProcessVar, pidParams, setpoint
 
   function ShiftSetpoint() {
     var shiftPoint = setpointArr.shift();
@@ -32,8 +28,6 @@ var GetPoints = function() {
   var integralErr = 0;
 
   function PID(processVar, prevProcessVar, pidParams) {
-    // add setpoint arg
-    //, coeff) {
     var Kc = (pidParams[0] / 100) * 40 + 25; // controller gain
     var tauI = (pidParams[1] / 100) * 30 + 15; // integral time constant
     var tauD = (pidParams[2] / 100) * 18 + 2; // derivative time constant
@@ -66,13 +60,13 @@ var GetPoints = function() {
   var controlVar = 0;
 
   function GetPV(pidParams) {
-    var g = 4;
+    const gravity = 4; // gravity constant *this isn't a realistic value only used for this simulation
     x = x + dxdt;
     controlVar = PID(x, lastX, pidParams);
     var yComponent = Math.sin((Math.PI / 180) * controlVar);
     var deltaT = 0.1;
-    v = v + g * yComponent * deltaT;
-    dxdt = v * deltaT + 0.5 * g * yComponent * Math.pow(deltaT, 2);
+    v = v + gravity * yComponent * deltaT;
+    dxdt = v * deltaT + 0.5 * gravity * yComponent * Math.pow(deltaT, 2);
     lastX = x;
     pvArr.shift();
     pvArr.push(x);
@@ -81,9 +75,8 @@ var GetPoints = function() {
 
   return {
     GetPoints: function(pidParams) {
-      ShiftSetpoint(); 
+      ShiftSetpoint();
       var pv = GetPV(pidParams);
-      
       var visibleSpArr = setpointArr.slice(0, 200);
       return [visibleSpArr, pv];
     },

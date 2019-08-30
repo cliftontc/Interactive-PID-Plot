@@ -9,7 +9,7 @@ const red = "#eb6a5b";
 const blue = "#52b6ca";
 
 const points = GetPoints();
-const initialSpArr = points.GetSpArr().slice(0,200);
+const initialSpArr = points.GetSpArr().slice(0, 200);
 const initialPvArr = [];
 
 for (var i = 0; i < 100; i++) {
@@ -43,11 +43,11 @@ class PidPlot extends Component {
     if (this.state.isMounted) {
       var pidParams = [this.state.pTerm, this.state.iTerm, this.state.dTerm];
       var datasets = points.GetPoints(pidParams);
-      //this.setState({
-        //setpoint: datasets[0],
-        //processVar: datasets[1],
-        //currSVG: this.plotGraph(datasets[0], datasets[1])
-      //});
+      this.setState({
+        setpoint: datasets[0],
+        processVar: datasets[1],
+        currSVG: this.plotGraph(datasets[0], datasets[1])
+      });
       requestAnimationFrame(this.tick);
     }
   }
@@ -60,9 +60,9 @@ class PidPlot extends Component {
     var spDataset = spData;
     var pvDataset = pvData;
 
-    const n = 200; // number of data points 
-    
-    //based on setpoints and ranges of tuning params 
+    const n = 200; // number of data points
+
+    //based on setpoints and ranges of tuning params
     //  -0.2 < pv < 0.8 was assumed
     const pvMax = 0.8;
     const pvMin = -0.2;
@@ -74,7 +74,7 @@ class PidPlot extends Component {
 
     var yScale = d3
       .scaleLinear()
-      .domain([pvMin, pvMax]) 
+      .domain([pvMin, pvMax])
       .range([height - margin.bottom, margin.top]);
 
     const xAxis = d3.axisBottom().scale(xScale);
