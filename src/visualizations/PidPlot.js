@@ -26,11 +26,13 @@ class PidPlot extends Component {
       setpoint: initialSpArr,
       processVar: initialPvArr,
       currSVG: null,
-      isMounted: false
+      isMounted: false,
+      isPaused: false
     };
     this.plotGraph = this.plotGraph.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.tick = this.tick.bind(this);
+    this.handlePause = this.handlePause.bind(this);
   }
   componentDidMount() {
     this.setState({
@@ -48,13 +50,22 @@ class PidPlot extends Component {
         processVar: datasets[1],
         currSVG: this.plotGraph(datasets[0], datasets[1])
       });
-      requestAnimationFrame(this.tick);
+      if (!this.state.isPaused) {
+        requestAnimationFrame(this.tick);
+      }
     }
   }
   handleChange(event) {
     this.setState({
       [event.target.id]: event.target.value
     });
+  }
+  handlePause() {
+    this.setState({
+      isPaused: !this.state.isPaused
+    });
+    requestAnimationFrame(this.tick);
+    console.log("worked");
   }
   plotGraph(spData, pvData) {
     var spDataset = spData;
@@ -95,24 +106,33 @@ class PidPlot extends Component {
     var svgJsx = (
       <div id="svg-container">
         <svg width={width} height={height}>
-          <path d={spLinePath} fill="none" stroke={blue} strokeWidth="2" />
-          <path d={pvLinePath} fill="none" stroke={red} strokeWidth="2" />
-          <g
-            className="xAxis"
-            ref={node => d3.select(node).call(xAxis)}
-            style={{
-              transform: `translateY(${height - margin.bottom}px)`,
-              fontSize: "0"
-            }}
-          />
-          <g
-            className="yAxis"
-            ref={node => d3.select(node).call(yAxis)}
-            style={{
-              transform: `translateX(${margin.left}px)`,
-              fontSize: "10px"
-            }}
-          />
+          <g>
+            <path d={spLinePath} fill="none" stroke={blue} strokeWidth="2" />
+            <path d={pvLinePath} fill="none" stroke={red} strokeWidth="2" />
+            <g
+              className="xAxis"
+              ref={node => d3.select(node).call(xAxis)}
+              style={{
+                transform: `translateY(${height - margin.bottom}px)`,
+                fontSize: "0"
+              }}
+            />
+            <g
+              className="yAxis"
+              ref={node => d3.select(node).call(yAxis)}
+              style={{
+                transform: `translateX(${margin.left}px)`,
+                fontSize: "10px"
+              }}
+            />
+            <rect
+              id="pauseWindow"
+              fillOpacity="0"
+              width={width}
+              height={height}
+              onClick={this.handlePause}
+            />
+          </g>
         </svg>
       </div>
     );
